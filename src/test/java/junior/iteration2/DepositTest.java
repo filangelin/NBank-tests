@@ -61,17 +61,14 @@ public class DepositTest extends MoneyOperationsBaseTest {
                 Arguments.of(user1Accounts.getFirst(), 0, 400, "Deposit amount must be at least 0.01"),
                 Arguments.of(user1Accounts.getFirst(), 5000.01, 400, "Deposit amount cannot exceed 5000"),
                 //отрицательное значение депозита
-                Arguments.of(user1Accounts.getFirst(), -100, 400, "Deposit amount must be at least 0.01"),
-                //счет другого пользователя
-                Arguments.of(user2Account, 100, 403, "Unauthorized access to account"),
-                //несуществующий счет
-                Arguments.of(99999, 100, 403, "Unauthorized access to account")
+                Arguments.of(user1Accounts.getFirst(), -100, 400, "Deposit amount must be at least 0.01")
 
                 );
     }
     @ParameterizedTest
     @MethodSource("invalidDataForDeposit")
     public void userCannotDepositWithInvalidData(int accountId, double deposit, int statusCode, String message) {
+        BigDecimal currentBalance = getCurrentBalance(accountId, userToken);
         BigDecimal depositAmount = BigDecimal.valueOf(deposit);
         given()
                 .baseUri(BASE_URL)
@@ -91,11 +88,43 @@ public class DepositTest extends MoneyOperationsBaseTest {
                 .assertThat()
                 .statusCode(statusCode)
                 .body(Matchers.containsString(message));
+
+        BigDecimal updatedBalance = getCurrentBalance(accountId, userToken);
+        Assertions.assertEquals(0, currentBalance.compareTo(updatedBalance));
+
     }
 
 
+    private static Stream<Arguments> invalidDataForDepositWithUncheckableBalance() {
+        return Stream.of(
+                //счет другого пользователя
+                Arguments.of(user2Account, 100, 403, "Unauthorized access to account"),
+                //несуществующий счет
+                Arguments.of(99999, 100, 403, "Unauthorized access to account"));
+    }
 
+    @ParameterizedTest
+    @MethodSource("invalidDataForDepositWithUncheckableBalance")
+    public void userCannotDepositWithInvalidDataAndUncheckableBalance(int accountId, double deposit, int statusCode, String message) {
+        BigDecimal depositAmount = BigDecimal.valueOf(deposit);
+        given()
+                .baseUri(BASE_URL)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .header("Authorization", userToken)
+                .body(String.format(Locale.US,
+                        """
+                                {
+                                    "id": %d,
+                                    "balance": %.2f
+                                }
+                                """, accountId, depositAmount))
+                .when()
+                .post(DEPOSIT)
+                .then()
+                .assertThat()
+                .statusCode(statusCode)
+                .body(Matchers.containsString(message));
 
-
-
+    }
 }
