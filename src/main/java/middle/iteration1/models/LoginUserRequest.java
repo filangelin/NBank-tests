@@ -1,4 +1,4 @@
-package middle.models;
+package middle.iteration1.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

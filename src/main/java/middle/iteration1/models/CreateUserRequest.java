@@ -1,4 +1,4 @@
-package middle.models;
+package middle.iteration1.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LoginUserResponse {
+public class CreateUserRequest extends BaseModel {
     private String username;
+    private String password;
     private String role;
 }

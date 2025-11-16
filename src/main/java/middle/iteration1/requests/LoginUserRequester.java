@@ -1,9 +1,9 @@
-package middle.requests;
+package middle.iteration1.requests;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import middle.models.LoginUserRequest;
+import middle.iteration1.models.LoginUserRequest;
 
 import static io.restassured.RestAssured.given;
 

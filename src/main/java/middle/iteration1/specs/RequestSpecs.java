@@ -1,12 +1,12 @@
-package middle.specs;
+package middle.iteration1.specs;
 
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import middle.models.LoginUserRequest;
-import middle.requests.LoginUserRequester;
+import middle.iteration1.models.LoginUserRequest;
+import middle.iteration1.requests.LoginUserRequester;
 
 import java.util.List;
 

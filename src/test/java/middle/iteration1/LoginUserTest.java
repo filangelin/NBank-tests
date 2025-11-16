@@ -1,15 +1,15 @@
 package middle.iteration1;
 
-import middle.generators.RandomData;
-import middle.models.CreateUserRequest;
-import middle.models.LoginUserRequest;
-import middle.models.UserRole;
+import middle.iteration1.generators.RandomData;
+import middle.iteration1.models.CreateUserRequest;
+import middle.iteration1.models.LoginUserRequest;
+import middle.iteration1.models.UserRole;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import middle.requests.AdminCreateUserRequester;
-import middle.requests.LoginUserRequester;
-import middle.specs.RequestSpecs;
-import middle.specs.ResponseSpecs;
+import middle.iteration1.requests.AdminCreateUserRequester;
+import middle.iteration1.requests.LoginUserRequester;
+import middle.iteration1.specs.RequestSpecs;
+import middle.iteration1.specs.ResponseSpecs;
 
 public class LoginUserTest extends BaseTest {
 

@@ -1,4 +1,4 @@
-package middle.generators;
+package middle.iteration1.generators;
 
 import org.apache.commons.lang3.RandomStringUtils;
 

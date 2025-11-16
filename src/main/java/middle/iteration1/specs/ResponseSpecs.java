@@ -1,4 +1,4 @@
-package middle.specs;
+package middle.iteration1.specs;
 
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.ResponseSpecification;
