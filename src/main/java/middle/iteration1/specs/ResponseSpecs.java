@@ -24,10 +24,31 @@ public class ResponseSpecs {
                 .build();
     }
 
+    public static ResponseSpecification requestReturnsOK(String msgKey, String msg) {
+        return defaultResponseBuilder()
+                .expectStatusCode(HttpStatus.SC_OK)
+                .expectBody(msgKey, Matchers.equalTo(msg))
+                .build();
+    }
+
     public static ResponseSpecification requestReturnsBadRequest(String errorKey, String errorValue) {
         return defaultResponseBuilder()
                 .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
                 .expectBody(errorKey, Matchers.equalTo(errorValue))
+                .build();
+    }
+
+    public static ResponseSpecification requestReturnsBadRequest(String errorValue) {
+        return defaultResponseBuilder()
+                .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
+                .expectBody(Matchers.containsString(errorValue))
+                .build();
+    }
+
+    public static ResponseSpecification requestReturnsForbidden(String errorValue) {
+        return defaultResponseBuilder()
+                .expectStatusCode(HttpStatus.SC_FORBIDDEN)
+                .expectBody(Matchers.containsString(errorValue))
                 .build();
     }
 }

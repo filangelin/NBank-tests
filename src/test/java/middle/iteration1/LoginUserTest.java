@@ -4,12 +4,12 @@ import middle.iteration1.generators.RandomData;
 import middle.iteration1.models.CreateUserRequest;
 import middle.iteration1.models.LoginUserRequest;
 import middle.iteration1.models.UserRole;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Test;
 import middle.iteration1.requests.AdminCreateUserRequester;
 import middle.iteration1.requests.LoginUserRequester;
 import middle.iteration1.specs.RequestSpecs;
 import middle.iteration1.specs.ResponseSpecs;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Test;
 
 public class LoginUserTest extends BaseTest {
 
@@ -22,7 +22,7 @@ public class LoginUserTest extends BaseTest {
 
         new LoginUserRequester(RequestSpecs.unauthSpec(),
                 ResponseSpecs.requestReturnsOK())
-                .post(userRequest);
+                .sendRequest(userRequest);
     }
 
     @Test
@@ -36,11 +36,11 @@ public class LoginUserTest extends BaseTest {
         new AdminCreateUserRequester(
                 RequestSpecs.adminSpec(),
                 ResponseSpecs.entityWasCreated())
-                .post(userRequest);
+                .sendRequest(userRequest);
 
         new LoginUserRequester(RequestSpecs.unauthSpec(),
                 ResponseSpecs.requestReturnsOK())
-                .post(LoginUserRequest.builder().username(userRequest.getUsername()).password(userRequest.getPassword()).build())
+                .sendRequest(LoginUserRequest.builder().username(userRequest.getUsername()).password(userRequest.getPassword()).build())
                 .header("Authorization", Matchers.notNullValue());
     }
 }

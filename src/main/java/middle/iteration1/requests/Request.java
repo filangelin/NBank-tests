@@ -14,5 +14,5 @@ public abstract class Request<T extends BaseModel> {
         this.responseSpecification = responseSpecification;
     }
 
-    public abstract ValidatableResponse post(T model);
+    public abstract ValidatableResponse sendRequest(T model);
 }

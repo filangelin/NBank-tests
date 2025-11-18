@@ -13,7 +13,7 @@ public class LoginUserRequester extends Request<LoginUserRequest> {
     }
 
     @Override
-    public ValidatableResponse post(LoginUserRequest model) {
+    public ValidatableResponse sendRequest(LoginUserRequest model) {
         return given()
                         .spec(requestSpecification)
                         .body(model)
