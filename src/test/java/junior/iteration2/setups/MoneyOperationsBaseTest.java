@@ -3,7 +3,6 @@ package junior.iteration2.setups;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

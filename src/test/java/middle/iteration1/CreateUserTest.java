@@ -4,13 +4,13 @@ import middle.iteration1.generators.RandomData;
 import middle.iteration1.models.CreateUserRequest;
 import middle.iteration1.models.CreateUserResponse;
 import middle.iteration1.models.UserRole;
+import middle.iteration1.requests.AdminCreateUserRequester;
+import middle.iteration1.specs.RequestSpecs;
+import middle.iteration1.specs.ResponseSpecs;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import middle.iteration1.requests.AdminCreateUserRequester;
-import middle.iteration1.specs.RequestSpecs;
-import middle.iteration1.specs.ResponseSpecs;
 
 import java.util.stream.Stream;
 
@@ -25,7 +25,7 @@ public class CreateUserTest extends BaseTest {
 
         CreateUserResponse createUserResponse = new AdminCreateUserRequester(RequestSpecs.adminSpec(),
                 ResponseSpecs.entityWasCreated())
-                .post(createUserRequest).extract().as(CreateUserResponse.class);
+                .sendRequest(createUserRequest).extract().as(CreateUserResponse.class);
 
         softly.assertThat(createUserRequest.getUsername()).isEqualTo(createUserResponse.getUsername());
         softly.assertThat(createUserRequest.getPassword()).isNotEqualTo(createUserResponse.getPassword());
@@ -54,6 +54,6 @@ public class CreateUserTest extends BaseTest {
 
         new AdminCreateUserRequester(RequestSpecs.adminSpec(),
                 ResponseSpecs.requestReturnsBadRequest(errorKey, errorValue))
-                .post(createUserRequest);
+                .sendRequest(createUserRequest);
     }
 }
