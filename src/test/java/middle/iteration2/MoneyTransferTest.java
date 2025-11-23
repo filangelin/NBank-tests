@@ -13,13 +13,17 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static middle.iteration1.generators.RandomData.getTransferAmount;
+
 public class MoneyTransferTest extends MoneyOperationsBaseTest {
     private static Stream<Arguments> correctDataForTransfer() {
         return Stream.of(
                 //user can transfer money to another user account(maximum 10000)
                 Arguments.of(10000),
+                Arguments.of(9999.99F),
                 //min 0.01
-                Arguments.of(0.01F)
+                Arguments.of(0.01F),
+                Arguments.of(0.02F)
         );
     }
 
@@ -57,7 +61,7 @@ public class MoneyTransferTest extends MoneyOperationsBaseTest {
     public void userCanTransferMoneyBetweenOwnAccounts() {
         float senderInitialBalance = getCurrentBalance(user1FirstAccount, user1);
         float receiverInitialBalance = getCurrentBalance(user1SecondAccount, user1);
-        float amount = 1000;
+        float amount = getTransferAmount();
 
         float senderExpectedBalance = senderInitialBalance - amount;
         float receiverExpectedBalance = receiverInitialBalance + amount;
@@ -85,9 +89,9 @@ public class MoneyTransferTest extends MoneyOperationsBaseTest {
 
     private static Stream<Arguments> invalidDataForTransfer() {
         return Stream.of(
-                //user cannot transfer more than 10000
+                //граничное значение 10000.01
                 Arguments.of(10000.01F, "Transfer amount cannot exceed 10000"),
-                //user cannot transfer 0
+                //граничное значение 0
                 Arguments.of(0, "Transfer amount must be at least 0.01"),
                 //user cannot transfer negative amount
                 Arguments.of(-100, "Transfer amount must be at least 0.01")
@@ -128,7 +132,7 @@ public class MoneyTransferTest extends MoneyOperationsBaseTest {
                 .sendRequest(TransferMoneyRequestModel.builder()
                         .senderAccountId(user2FirstAccount)
                         .receiverAccountId(user1FirstAccount)
-                        .amount(100)
+                        .amount(getTransferAmount())
                         .build());
 
         //проверка, что балансы отправителя и получителя не изменились
@@ -146,14 +150,14 @@ public class MoneyTransferTest extends MoneyOperationsBaseTest {
 
         //отправка запроса и сообщении об ошибке
         new TransferMoneyRequester(RequestSpecs.authAsUser(user1.getUsername(), user1.getPassword()),
-                ResponseSpecs.requestReturnsForbidden("Unauthorized access to account"))
+                ResponseSpecs.requestReturnsForbidden())
                 .sendRequest(TransferMoneyRequestModel.builder()
                         .senderAccountId(user2FirstAccount)
                         .receiverAccountId(user1SecondAccount)
-                        .amount(100)
+                        .amount(getTransferAmount())
                         .build());
 
-        //проверка, что балансы отправителя и получителя не изменились
+        //проверка, что балансы отправителя и получателя не изменились
         float senderUpdatedBalance = getCurrentBalance(user2FirstAccount, user2);
         float receiverUpdatedBalance = getCurrentBalance(user1SecondAccount, user1);
         softly.assertThat(senderUpdatedBalance).isEqualTo(senderInitialBalance);
@@ -171,7 +175,7 @@ public class MoneyTransferTest extends MoneyOperationsBaseTest {
                 .sendRequest(TransferMoneyRequestModel.builder()
                         .senderAccountId(user1FirstAccount)
                         .receiverAccountId(9999)
-                        .amount(100)
+                        .amount(getTransferAmount())
                         .build());
 
         //проверка, что баланс отправителя не изменилcя

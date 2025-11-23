@@ -6,6 +6,8 @@ import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
 
 public class ResponseSpecs {
+    public static final String ERROR_UNAUTHORIZED_ACCESS = "Unauthorized access to account";
+
     private ResponseSpecs() {}
 
     private static ResponseSpecBuilder defaultResponseBuilder() {
@@ -45,10 +47,10 @@ public class ResponseSpecs {
                 .build();
     }
 
-    public static ResponseSpecification requestReturnsForbidden(String errorValue) {
+    public static ResponseSpecification requestReturnsForbidden() {
         return defaultResponseBuilder()
                 .expectStatusCode(HttpStatus.SC_FORBIDDEN)
-                .expectBody(Matchers.containsString(errorValue))
+                .expectBody(Matchers.containsString(ERROR_UNAUTHORIZED_ACCESS))
                 .build();
     }
 }

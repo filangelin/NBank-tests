@@ -12,6 +12,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static middle.iteration1.generators.RandomData.getDepositAmount;
+
 
 public class DepositTest extends MoneyOperationsBaseTest {
 
@@ -19,6 +21,8 @@ public class DepositTest extends MoneyOperationsBaseTest {
         return Stream.of(
                 //граничные значения
                 Arguments.of(0.01F),
+                Arguments.of(0.02F),
+                Arguments.of(4999.99F),
                 Arguments.of(5000)
         );
     }
@@ -75,8 +79,8 @@ public class DepositTest extends MoneyOperationsBaseTest {
 
         //отправка запроса и проверка сообщения об ошибке
         new MakeDepositRequester(RequestSpecs.authAsUser(user1.getUsername(), user1.getPassword()),
-                ResponseSpecs.requestReturnsForbidden("Unauthorized access to account"))
-                .sendRequest(new MakeDepositRequestModel(user2FirstAccount, 1000));
+                ResponseSpecs.requestReturnsForbidden())
+                .sendRequest(new MakeDepositRequestModel(user2FirstAccount, getDepositAmount()));
 
         //проверка, что баланс другого пользователя не поменялся
         float updatedBalance = getCurrentBalance(user2FirstAccount, user2);
