@@ -36,7 +36,7 @@ public class RequestSpecs {
         String userAuthHeader = new LoginUserRequester(
                 RequestSpecs.unauthSpec(),
                 ResponseSpecs.requestReturnsOK())
-                .post(LoginUserRequest.builder().username(username).password(password).build())
+                .sendRequest(LoginUserRequest.builder().username(username).password(password).build())
                 .extract()
                 .header("Authorization");
 

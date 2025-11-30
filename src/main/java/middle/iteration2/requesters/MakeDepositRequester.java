@@ -1,23 +1,25 @@
-package middle.iteration1.requests;
+package middle.iteration2.requesters;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import middle.iteration1.models.CreateUserRequest;
+import middle.iteration1.requests.Request;
+import middle.iteration2.Endpoints;
+import middle.iteration2.models.MakeDepositRequestModel;
 
 import static io.restassured.RestAssured.given;
 
-public class AdminCreateUserRequester extends Request<CreateUserRequest> {
-    public AdminCreateUserRequester(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
+public class MakeDepositRequester extends Request<MakeDepositRequestModel> {
+    public MakeDepositRequester(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
         super(requestSpecification, responseSpecification);
     }
 
     @Override
-    public ValidatableResponse sendRequest(CreateUserRequest model) {
+    public ValidatableResponse sendRequest(MakeDepositRequestModel model) {
         return given()
                 .spec(requestSpecification)
                 .body(model)
-                .post("/api/v1/admin/users")
+                .post(Endpoints.DEPOSIT)
                 .then()
                 .assertThat()
                 .spec(responseSpecification);
