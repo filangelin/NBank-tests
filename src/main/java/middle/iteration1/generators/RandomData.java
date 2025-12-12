@@ -33,4 +33,20 @@ public class RandomData {
                 (MIN_AMOUNT + Math.random() * (MAX_TRANSFER - MIN_AMOUNT)) * 100
         ) / 100f;
     }
+
+    public static Long getNonexistingAccountId() {
+        long nonexistingAccountId;
+
+        do {
+            nonexistingAccountId = (long) (Math.random() * 999999) + 1;
+            // Здесь будто бы идём в БД и проверяем, существует ли такой ID, если существует, то exists будет равен true и пойдем искать дальше
+            boolean exists = false;
+            if (!exists) {
+                break;
+            }
+
+        } while (true);
+
+        return nonexistingAccountId;
+    }
 }
