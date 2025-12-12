@@ -21,6 +21,9 @@ import senior.specs.ResponseSpecs;
 
 import java.util.stream.Stream;
 
+import static senior.common.Errors.INVALID_NAME;
+import static senior.common.ResponseMessages.SUCCESS_PROFILE_UPDATE;
+
 
 public class NameUpdateTest extends BaseTest {
 
@@ -40,7 +43,7 @@ public class NameUpdateTest extends BaseTest {
         ChangeNameResponseModel changeNameResponse = new ValidatedCrudRequester<ChangeNameResponseModel>(
                 reqSpec,
                 Endpoint.UPDATE_PROFILE,
-                ResponseSpecs.requestReturnsOK("message", "Profile updated successfully"))
+                ResponseSpecs.requestReturnsOKWithMessage(SUCCESS_PROFILE_UPDATE))
                 .put(changeNameRequestModel);
 
 
@@ -80,7 +83,7 @@ public class NameUpdateTest extends BaseTest {
         new CrudRequester(
                 reqSpec,
                 Endpoint.UPDATE_PROFILE,
-                ResponseSpecs.requestReturnsBadRequest("Name must contain two words with letters only"))
+                ResponseSpecs.requestReturnsBadRequest(INVALID_NAME))
                 .put(new ChangeNameRequestModel(nameForUpdate));
 
         //проверка, что имя в профиле не поменялось через GET метод

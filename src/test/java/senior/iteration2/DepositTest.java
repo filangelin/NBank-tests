@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import senior.common.Errors;
 import senior.iteration1.BaseTest;
 import senior.models.AccountResponseModel;
 import senior.models.CreateUserRequest;
@@ -20,6 +21,8 @@ import senior.specs.RequestSpecs;
 import java.util.stream.Stream;
 
 import static middle.iteration1.generators.RandomData.getDepositAmount;
+import static senior.common.Errors.EXCEEDED_DEPOSIT;
+import static senior.common.Errors.LEAST_DEPOSIT;
 
 
 public class DepositTest extends BaseTest {
@@ -64,16 +67,16 @@ public class DepositTest extends BaseTest {
     private static Stream<Arguments> invalidDataForDeposit() {
         return Stream.of(
                 //граничные значения суммы депозита
-                Arguments.of( 0,  "Deposit amount must be at least 0.01"),
-                Arguments.of( 5000.01F,  "Deposit amount cannot exceed 5000"),
+                Arguments.of( 0, LEAST_DEPOSIT),
+                Arguments.of( 5000.01F, EXCEEDED_DEPOSIT),
                 //отрицательное значение депозита
-                Arguments.of( -100, "Deposit amount must be at least 0.01")
+                Arguments.of( -100, LEAST_DEPOSIT)
                 );
     }
 
     @ParameterizedTest
     @MethodSource("invalidDataForDeposit")
-    public void userCannotDepositWithInvalidData(float deposit, String message) {
+    public void userCannotDepositWithInvalidData(float deposit, Errors message) {
         CreateUserRequest userRequest = AdminSteps.createUser();
         var reqSpec = RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword());
         Long accountId = UserSteps.createAccount(reqSpec).getId();

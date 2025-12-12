@@ -4,6 +4,8 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.specification.ResponseSpecification;
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
+import senior.common.Errors;
+import senior.common.ResponseMessages;
 
 public class ResponseSpecs {
     public static final String ERROR_UNAUTHORIZED_ACCESS = "Unauthorized access to account";
@@ -33,6 +35,13 @@ public class ResponseSpecs {
                 .build();
     }
 
+    public static ResponseSpecification requestReturnsOKWithMessage(ResponseMessages msg) {
+        return defaultResponseBuilder()
+                .expectStatusCode(HttpStatus.SC_OK)
+                .expectBody("message", Matchers.equalTo(msg.getMsg()))
+                .build();
+    }
+
     public static ResponseSpecification requestReturnsBadRequest(String errorKey, String errorValue) {
         return defaultResponseBuilder()
                 .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
@@ -40,10 +49,10 @@ public class ResponseSpecs {
                 .build();
     }
 
-    public static ResponseSpecification requestReturnsBadRequest(String errorValue) {
+    public static ResponseSpecification requestReturnsBadRequest(Errors errorValue) {
         return defaultResponseBuilder()
                 .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
-                .expectBody(Matchers.containsString(errorValue))
+                .expectBody(Matchers.containsString(errorValue.getMsg()))
                 .build();
     }
 

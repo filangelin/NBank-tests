@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import senior.common.Errors;
 import senior.iteration1.BaseTest;
 import senior.models.CreateUserRequest;
+import senior.common.ResponseMessages;
 import senior.models.comparison.ModelAssertions;
 import senior.models.transfer.TransferMoneyRequestModel;
 import senior.models.transfer.TransferMoneyResponseModel;
@@ -19,6 +21,7 @@ import senior.specs.ResponseSpecs;
 import java.util.stream.Stream;
 
 import static middle.iteration1.generators.RandomData.getTransferAmount;
+import static senior.common.Errors.*;
 
 public class MoneyTransferTest extends BaseTest {
     private static Stream<Arguments> correctDataForTransfer() {
@@ -61,7 +64,7 @@ public class MoneyTransferTest extends BaseTest {
         TransferMoneyResponseModel response = new ValidatedCrudRequester<TransferMoneyResponseModel>(
                 reqSpec1,
                 Endpoint.TRANSFER,
-                ResponseSpecs.requestReturnsOK("message", "Transfer successful"))
+                ResponseSpecs.requestReturnsOKWithMessage(ResponseMessages.SUCCESS_TRANSFER))
                 .post(request);
 
         //проверка ответа
@@ -102,7 +105,7 @@ public class MoneyTransferTest extends BaseTest {
         TransferMoneyResponseModel response = new ValidatedCrudRequester<TransferMoneyResponseModel>(
                 reqSpec1,
                 Endpoint.TRANSFER,
-                ResponseSpecs.requestReturnsOK("message", "Transfer successful"))
+                ResponseSpecs.requestReturnsOKWithMessage(ResponseMessages.SUCCESS_TRANSFER))
                 .post(request);
 
         //проверка ответа
@@ -119,19 +122,19 @@ public class MoneyTransferTest extends BaseTest {
     private static Stream<Arguments> invalidDataForTransfer() {
         return Stream.of(
                 //граничное значение 10000.01
-                Arguments.of(11000f, 10000.01F, "Transfer amount cannot exceed 10000"),
+                Arguments.of(11000f, 10000.01F, EXCEEDED_TRANSFER),
                 //граничное значение 0
-                Arguments.of(getTransferAmount(), 0, "Transfer amount must be at least 0.01"),
+                Arguments.of(getTransferAmount(), 0, LEAST_TRANSFER),
                 //user cannot transfer negative amount
-                Arguments.of(getTransferAmount(), -100, "Transfer amount must be at least 0.01"),
+                Arguments.of(getTransferAmount(), -100, LEAST_TRANSFER),
                 //user cannot transfer more than sender balance
-                Arguments.of(100, 200, "insufficient funds or invalid accounts")
+                Arguments.of(100, 200, INSUFFICIENT_FUND)
                 );
     }
 
     @ParameterizedTest
     @MethodSource("invalidDataForTransfer")
-    public void userCannotTransferMoneyWithInvalidData(float depositAmount, float amount, String message) {
+    public void userCannotTransferMoneyWithInvalidData(float depositAmount, float amount, Errors message) {
         //cоздание пользователей и аккаунтов
         CreateUserRequest userRequest1 = AdminSteps.createUser();
         CreateUserRequest userRequest2 = AdminSteps.createUser();
