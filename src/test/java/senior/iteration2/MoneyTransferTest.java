@@ -20,6 +20,7 @@ import senior.specs.ResponseSpecs;
 
 import java.util.stream.Stream;
 
+import static middle.iteration1.generators.RandomData.getNonexistingAccountId;
 import static middle.iteration1.generators.RandomData.getTransferAmount;
 import static senior.common.Errors.*;
 
@@ -213,7 +214,7 @@ public class MoneyTransferTest extends BaseTest {
         float senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
 
         var request = TransferMoneyRequestModel.builder()
-                .senderAccountId(9999)
+                .senderAccountId(getNonexistingAccountId())
                 .receiverAccountId(accountId1)
                 .amount(getTransferAmount())
                 .build();
