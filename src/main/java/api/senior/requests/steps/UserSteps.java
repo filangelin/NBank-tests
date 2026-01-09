@@ -23,11 +23,20 @@ public class UserSteps {
         this.password = password;
     }
 
-    public  List<CreateAccountResponse> getAllAccounts() {
+    public List<CreateAccountResponse> getAllAccounts() {
         return new ValidatedCrudRequester<CreateAccountResponse>(
                 RequestSpecs.authAsUser(username, password),
                 Endpoint.CUSTOMER_ACCOUNTS,
                 ResponseSpecs.requestReturnsOK()).getAll(CreateAccountResponse[].class);
+    }
+
+    public String getProfileName() {
+        return new ValidatedCrudRequester<GetProfileResponseModel>(
+                RequestSpecs.authAsUser(username, password),
+                Endpoint.GET_PROFILE,
+                api.senior.specs.ResponseSpecs.requestReturnsOK())
+                .get()
+                .getName();
     }
 
     public static String getProfileName(RequestSpecification requestSpecs) {
