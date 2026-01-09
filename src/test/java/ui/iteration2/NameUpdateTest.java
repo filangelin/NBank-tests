@@ -1,0 +1,78 @@
+package ui.iteration2;
+
+import api.senior.models.CreateUserRequest;
+import api.senior.requests.steps.AdminSteps;
+import api.senior.requests.steps.UserSteps;
+import com.github.javafaker.Faker;
+import com.github.javafaker.Name;
+import org.junit.jupiter.api.Test;
+import ui.BaseUiTest;
+import ui.pages.BankAlert;
+import ui.pages.UserDashboard;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static ui.pages.UserDashboard.DEFAULT_USERNAME;
+
+
+public class NameUpdateTest extends BaseUiTest {
+
+    @Test
+    public void userCanChangeNameWithValidName() {
+        CreateUserRequest user = AdminSteps.createUser();
+        authAsUser(user);
+        Name fakerName = new Faker().name();
+        String nameForUpdate = fakerName.firstName() + " " + fakerName.lastName();
+
+        new UserDashboard().open()
+                .checkWelcomeName(DEFAULT_USERNAME)
+                .header.checkUsername(DEFAULT_USERNAME)
+                .gotoEditProfile()
+                .changeName(nameForUpdate)
+                .saveChanges()
+                .checkAlertMessageAndAccept(BankAlert.NAME_CHANGED_SUCCESSFULLY.getMessage())
+                .goToHomePage()
+                .checkWelcomeName(nameForUpdate)
+                .header.checkUsername(nameForUpdate);
+
+        String nameAfterUpdate = new UserSteps(user.getUsername(), user.getPassword())
+                .getProfileName();
+        assertThat(nameForUpdate).isEqualTo(nameAfterUpdate);
+    }
+
+    @Test
+    public void userCannotChangeNameWithInvalidName() {
+        CreateUserRequest user = AdminSteps.createUser();
+        authAsUser(user);
+
+        new UserDashboard().open()
+                .header.gotoEditProfile()
+                .changeName("name")
+                .saveChanges()
+                .checkAlertMessageAndAccept(BankAlert.NAME_MUST_CONTAIN_TWO_WORDS_WITH_LETTERS_ONLY.getMessage())
+                .goToHomePage()
+                .checkWelcomeName(DEFAULT_USERNAME)
+                .header.checkUsername(DEFAULT_USERNAME);;
+
+        String nameAfterUpdate = new UserSteps(user.getUsername(), user.getPassword())
+                .getProfileName();
+        assertThat(nameAfterUpdate).isEqualTo(null);
+    }
+
+    @Test
+    public void userCannotChangeNameWithEmptyName() {
+        CreateUserRequest user = AdminSteps.createUser();
+        authAsUser(user);
+
+        new UserDashboard().open()
+                .header.gotoEditProfile()
+                .saveChanges()
+                .checkAlertMessageAndAccept(BankAlert.INVALID_NAME.getMessage())
+                .goToHomePage()
+                .checkWelcomeName(DEFAULT_USERNAME)
+                .header.checkUsername(DEFAULT_USERNAME);;
+
+        String nameAfterUpdate = new UserSteps(user.getUsername(), user.getPassword())
+                .getProfileName();
+        assertThat(nameAfterUpdate).isEqualTo(null);
+    }
+}
