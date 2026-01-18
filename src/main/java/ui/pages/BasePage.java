@@ -13,6 +13,7 @@ public abstract class BasePage<T extends BasePage> {
     protected SelenideElement usernameInput = $(Selectors.byAttribute("placeholder", "Username"));
     protected SelenideElement passwordInput = $(Selectors.byAttribute("placeholder", "Password"));
 
+    public Header header = new Header();
 
     public abstract String url();
 
@@ -26,6 +27,11 @@ public abstract class BasePage<T extends BasePage> {
         Alert alert = switchTo().alert();
         assertThat(alert.getText()).contains(bankAlert);
         alert.accept();
+        return (T) this;
+    }
+
+    public T refresh() {
+        Selenide.refresh();
         return (T) this;
     }
 }
