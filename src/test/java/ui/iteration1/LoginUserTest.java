@@ -1,6 +1,5 @@
 package ui.iteration1;
 
-
 import api.senior.models.CreateUserRequest;
 import api.senior.requests.steps.AdminSteps;
 import com.codeborne.selenide.Condition;
@@ -16,7 +15,7 @@ public class LoginUserTest extends BaseUiTest {
         CreateUserRequest admin = CreateUserRequest.getAdmin();
 
         new LoginPage().open().login(admin.getUsername(), admin.getPassword())
-                        .getPage(AdminPanel.class).getAdminPanelText().shouldBe(Condition.visible);
+                .getPage(AdminPanel.class).getAdminPanelText().shouldBe(Condition.visible);
     }
 
     @Test

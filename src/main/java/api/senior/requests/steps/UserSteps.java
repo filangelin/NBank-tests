@@ -1,15 +1,15 @@
 package api.senior.requests.steps;
 
 import api.middle.iteration1.specs.ResponseSpecs;
-import api.senior.models.CreateAccountResponse;
-import api.senior.specs.RequestSpecs;
-import io.restassured.specification.RequestSpecification;
 import api.senior.models.AccountResponseModel;
+import api.senior.models.CreateAccountResponse;
 import api.senior.models.deposit.MakeDepositRequestModel;
 import api.senior.models.profile.GetProfileResponseModel;
 import api.senior.requests.skelethon.Endpoint;
 import api.senior.requests.skelethon.requesters.CrudRequester;
 import api.senior.requests.skelethon.requesters.ValidatedCrudRequester;
+import api.senior.specs.RequestSpecs;
+import io.restassured.specification.RequestSpecification;
 
 import java.util.List;
 import java.util.Objects;
@@ -63,6 +63,7 @@ public class UserSteps {
                 .orElseThrow(() -> new RuntimeException(String.format("Account with id = %d not found", accountId)));
     }
 
+
     public static AccountResponseModel createAccount(RequestSpecification reqSpec) {
         return new ValidatedCrudRequester<AccountResponseModel>(
                 reqSpec,
@@ -70,6 +71,7 @@ public class UserSteps {
                 api.senior.specs.ResponseSpecs.entityWasCreated())
                 .post(null);
     }
+
 
     public static void depositMoney(RequestSpecification reqSpec, Long accountId, float amount) {
         final float MAX_DEPOSIT = 5000f;
