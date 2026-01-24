@@ -1,16 +1,16 @@
 package common.storage;
 
+import api.senior.models.AccountResponseModel;
 import api.senior.models.CreateUserRequest;
 import api.senior.requests.steps.UserSteps;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class SessionStorage {
     private static final SessionStorage INSTANCE = new SessionStorage();
 
     private final LinkedHashMap<CreateUserRequest, UserSteps> userStepsMap = new LinkedHashMap<>();
+    private final HashMap<Integer, List<AccountResponseModel>> usersAccounts = new HashMap<>();
 
     private SessionStorage() {
     }
@@ -45,5 +45,23 @@ public class SessionStorage {
 
     public static void clear() {
         INSTANCE.userStepsMap.clear();
+        INSTANCE.usersAccounts.clear();
+    }
+
+    public static void addAccount(int userIndex, AccountResponseModel account) {
+        var accountsList = INSTANCE.usersAccounts.computeIfAbsent(userIndex, k -> new LinkedList<>());
+        accountsList.add(account);
+    }
+
+    public static AccountResponseModel getAccount(int userIndex) {
+        return INSTANCE.usersAccounts.get(userIndex).getFirst();
+    }
+
+    public static AccountResponseModel getAccount(int userIndex, int accountIndex) {
+        return INSTANCE.usersAccounts.get(userIndex).get(accountIndex - 1);
+    }
+
+    public static AccountResponseModel getAccount() {
+        return INSTANCE.usersAccounts.get(1).getFirst();
     }
 }

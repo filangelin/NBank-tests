@@ -1,9 +1,9 @@
 package ui.iteration2;
 
-import api.senior.models.CreateUserRequest;
-import api.senior.requests.steps.AdminSteps;
-import api.senior.requests.steps.UserSteps;
-import api.senior.specs.RequestSpecs;
+import common.annotations.Account;
+import common.annotations.AccountSpec;
+import common.annotations.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
 import ui.pages.BankAlert;
@@ -18,11 +18,10 @@ import static ui.pages.DepositMoneyPage.NEGATIVE_MAXIMUM_BOUNDARY_VALUE;
 public class DepositTest extends BaseUiTest {
 
     @Test
+    @UserSession
+    @Account({@AccountSpec})
     public void userCanDeposit() {
-        CreateUserRequest userRequest = AdminSteps.createUser();
-        var reqSpec = RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword());
-        authAsUser(userRequest);
-        Long accountId = UserSteps.createAccount(reqSpec).getId();
+        Long accountId = SessionStorage.getAccount().getId();
         var depositAmount = getDepositAmount();
 
         new UserDashboard().open()
@@ -34,16 +33,15 @@ public class DepositTest extends BaseUiTest {
                 .gotoDepositMoney()
                 .checkAccountBalance(accountId, depositAmount);
 
-        float updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
+        float updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isEqualTo(depositAmount);
     }
 
     @Test
+    @UserSession
+    @Account({@AccountSpec})
     public void userCannotDepositMoreThanMaximumDeposit() {
-        CreateUserRequest userRequest = AdminSteps.createUser();
-        var reqSpec = RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword());
-        authAsUser(userRequest);
-        Long accountId = UserSteps.createAccount(reqSpec).getId();
+        Long accountId = SessionStorage.getAccount().getId();
 
         new UserDashboard().open()
                 .gotoDepositMoney()
@@ -54,16 +52,15 @@ public class DepositTest extends BaseUiTest {
                 .gotoDepositMoney()
                 .checkAccountBalance(accountId, DEFAULT_BALANCE);
 
-        float updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
+        float updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isZero();
     }
 
     @Test
+    @UserSession
+    @Account({@AccountSpec})
     public void userCannotDepositWithInvalidDepositAmount() {
-        CreateUserRequest userRequest = AdminSteps.createUser();
-        var reqSpec = RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword());
-        authAsUser(userRequest);
-        Long accountId = UserSteps.createAccount(reqSpec).getId();
+        Long accountId = SessionStorage.getAccount().getId();
 
         new UserDashboard().open()
                 .gotoDepositMoney()
@@ -73,16 +70,15 @@ public class DepositTest extends BaseUiTest {
                 .gotoDepositMoney()
                 .checkAccountBalance(accountId, DEFAULT_BALANCE);
 
-        float updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
+        float updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isZero();
     }
 
     @Test
+    @UserSession
+    @Account({@AccountSpec})
     public void userCannotDepositWithUnselectedAccount() {
-        CreateUserRequest userRequest = AdminSteps.createUser();
-        var reqSpec = RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword());
-        authAsUser(userRequest);
-        Long accountId = UserSteps.createAccount(reqSpec).getId();
+        Long accountId = SessionStorage.getAccount().getId();
         var depositAmount = getDepositAmount();
 
         new UserDashboard().open()
@@ -93,7 +89,7 @@ public class DepositTest extends BaseUiTest {
                 .gotoDepositMoney()
                 .checkAccountBalance(accountId, DEFAULT_BALANCE);
 
-        float updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
+        float updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isZero();
     }
 }

@@ -3,6 +3,7 @@ package ui;
 import api.senior.configs.Config;
 import api.senior.iteration1.BaseTest;
 import com.codeborne.selenide.Configuration;
+import common.extensions.AccountExtension;
 import common.extensions.AdminSessionExtension;
 import common.extensions.UserSessionExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Map;
 
-@ExtendWith({AdminSessionExtension.class, UserSessionExtension.class})
+@ExtendWith({AdminSessionExtension.class, UserSessionExtension.class, AccountExtension.class})
 public class BaseUiTest extends BaseTest {
     @BeforeAll
     public static void setupSelenoid() {
