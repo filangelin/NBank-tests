@@ -1,10 +1,10 @@
 package ui.iteration2;
 
-import api.senior.models.CreateUserRequest;
-import api.senior.requests.steps.AdminSteps;
 import api.senior.requests.steps.UserSteps;
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
+import common.annotations.UserSession;
+import common.storage.SessionStorage;
 import org.junit.jupiter.api.Test;
 import ui.BaseUiTest;
 import ui.pages.BankAlert;
@@ -17,9 +17,9 @@ import static ui.pages.UserDashboard.DEFAULT_USERNAME;
 public class NameUpdateTest extends BaseUiTest {
 
     @Test
+    @UserSession
     public void userCanChangeNameWithValidName() {
-        CreateUserRequest user = AdminSteps.createUser();
-        authAsUser(user);
+        var user = SessionStorage.getUser();
         Name fakerName = new Faker().name();
         String nameForUpdate = fakerName.firstName() + " " + fakerName.lastName();
 
@@ -40,9 +40,9 @@ public class NameUpdateTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCannotChangeNameWithInvalidName() {
-        CreateUserRequest user = AdminSteps.createUser();
-        authAsUser(user);
+        var user = SessionStorage.getUser();
 
         new UserDashboard().open()
                 .header.gotoEditProfile()
@@ -59,9 +59,9 @@ public class NameUpdateTest extends BaseUiTest {
     }
 
     @Test
+    @UserSession
     public void userCannotChangeNameWithEmptyName() {
-        CreateUserRequest user = AdminSteps.createUser();
-        authAsUser(user);
+        var user = SessionStorage.getUser();
 
         new UserDashboard().open()
                 .header.gotoEditProfile()

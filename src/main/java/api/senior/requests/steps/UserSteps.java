@@ -30,6 +30,46 @@ public class UserSteps {
                 ResponseSpecs.requestReturnsOK()).getAll(CreateAccountResponse[].class);
     }
 
+    public AccountResponseModel createAccount() {
+        return new ValidatedCrudRequester<AccountResponseModel>(
+                RequestSpecs.authAsUser(username, password),
+                Endpoint.ACCOUNTS,
+                api.senior.specs.ResponseSpecs.entityWasCreated())
+                .post(null);
+    }
+
+    public void depositMoney(Long accountId, float amount) {
+        final float MAX_DEPOSIT = 5000f;
+        float remaining = amount;
+        while (remaining > 0) {
+            float part = Math.min(remaining, MAX_DEPOSIT);
+
+            MakeDepositRequestModel request = new MakeDepositRequestModel(accountId, part);
+            new ValidatedCrudRequester<AccountResponseModel>(
+                    RequestSpecs.authAsUser(username, password),
+                    Endpoint.DEPOSIT,
+                    ResponseSpecs.requestReturnsOK()
+            ).post(request);
+
+            remaining -= part;
+        }
+    }
+
+    public float getCurrentAccountBalance(Long accountId) {
+        List<AccountResponseModel> accounts = new CrudRequester(
+                RequestSpecs.authAsUser(username, password),
+                Endpoint.CUSTOMER_ACCOUNTS,
+                api.senior.specs.ResponseSpecs.requestReturnsOK())
+                .get()
+                .extract().jsonPath().getList("", AccountResponseModel.class);
+
+        return accounts.stream()
+                .filter(it -> Objects.equals(accountId, it.getId()))
+                .map(AccountResponseModel::getBalance)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(String.format("Account with id = %d not found", accountId)));
+    }
+
     public String getProfileName() {
         return new ValidatedCrudRequester<GetProfileResponseModel>(
                 RequestSpecs.authAsUser(username, password),
