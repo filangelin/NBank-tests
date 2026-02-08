@@ -2,7 +2,7 @@ package api.senior.iteration2;
 
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
-import api.middle.iteration2.setups.BaseTest;
+import api.senior.iteration1.BaseTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
