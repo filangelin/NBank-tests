@@ -11,6 +11,7 @@ import ui.pages.UserDashboard;
 
 import static api.middle.iteration1.generators.RandomData.getDepositAmount;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static ui.pages.BasePage.authAsUser;
 import static ui.pages.DepositMoneyPage.DEFAULT_BALANCE;
 import static ui.pages.DepositMoneyPage.NEGATIVE_MAXIMUM_BOUNDARY_VALUE;
 

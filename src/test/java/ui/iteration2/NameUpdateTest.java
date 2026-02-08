@@ -11,6 +11,7 @@ import ui.pages.BankAlert;
 import ui.pages.UserDashboard;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ui.pages.BasePage.authAsUser;
 import static ui.pages.UserDashboard.DEFAULT_USERNAME;
 
 

@@ -12,6 +12,7 @@ import ui.pages.UserDashboard;
 import static api.middle.iteration1.generators.RandomData.getNonexistingAccountId;
 import static api.middle.iteration1.generators.RandomData.getTransferAmount;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static ui.pages.BasePage.authAsUser;
 
 public class MoneyTransferTest extends BaseUiTest {
 
