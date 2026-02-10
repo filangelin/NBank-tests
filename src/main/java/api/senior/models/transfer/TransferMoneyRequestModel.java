@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import api.senior.models.BaseModel;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,5 +15,5 @@ import api.senior.models.BaseModel;
 public class TransferMoneyRequestModel extends BaseModel {
     private long senderAccountId;
     private long receiverAccountId;
-    private float amount;
+    private BigDecimal amount;
 }

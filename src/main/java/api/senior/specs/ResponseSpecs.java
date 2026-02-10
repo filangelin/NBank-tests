@@ -7,6 +7,8 @@ import org.hamcrest.Matchers;
 import api.senior.common.Errors;
 import api.senior.common.ResponseMessages;
 
+import java.util.List;
+
 public class ResponseSpecs {
     public static final String ERROR_UNAUTHORIZED_ACCESS = "Unauthorized access to account";
 
@@ -42,10 +44,10 @@ public class ResponseSpecs {
                 .build();
     }
 
-    public static ResponseSpecification requestReturnsBadRequest(String errorKey, String errorValue) {
+    public static ResponseSpecification requestReturnsBadRequest(String errorKey, List<String> errorValues) {
         return defaultResponseBuilder()
                 .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
-                .expectBody(errorKey, Matchers.equalTo(errorValue))
+                .expectBody(errorKey, Matchers.containsInAnyOrder(errorValues.toArray()))
                 .build();
     }
 

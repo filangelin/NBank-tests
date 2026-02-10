@@ -2,8 +2,11 @@ package api.middle.iteration1.generators;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class RandomData {
-    private static final float MIN_AMOUNT = 0.01f;
+    private static final BigDecimal MIN_AMOUNT = BigDecimal.valueOf(0.01);
 
     private RandomData() {
     }
@@ -19,19 +22,30 @@ public class RandomData {
     }
 
 
-    public static float getDepositAmount() {
-        final float MAX_DEPOSIT = 5000f;
-        return Math.round(
-                (MIN_AMOUNT + Math.random() * (MAX_DEPOSIT - MIN_AMOUNT)) * 100
-        ) / 100f;
+    public static BigDecimal getDepositAmount() {
+        final BigDecimal MAX_DEPOSIT = BigDecimal.valueOf(5000);
+
+        BigDecimal random = BigDecimal.valueOf(Math.random());
+
+        BigDecimal amount = MIN_AMOUNT.add(
+                random.multiply(MAX_DEPOSIT.subtract(MIN_AMOUNT))
+        );
+
+        return amount.setScale(2, RoundingMode.HALF_UP);
     }
 
 
-    public static float getTransferAmount() {
-        final float MAX_TRANSFER = 10000f;
-        return Math.round(
-                (MIN_AMOUNT + Math.random() * (MAX_TRANSFER - MIN_AMOUNT)) * 100
-        ) / 100f;
+
+    public static BigDecimal getTransferAmount() {
+        final BigDecimal MAX_TRANSFER = BigDecimal.valueOf(10000);
+
+        BigDecimal random = BigDecimal.valueOf(Math.random());
+
+        BigDecimal amount = MIN_AMOUNT.add(
+                random.multiply(MAX_TRANSFER.subtract(MIN_AMOUNT))
+        );
+
+        return amount.setScale(2, RoundingMode.HALF_UP);
     }
 
     public static Long getNonexistingAccountId() {

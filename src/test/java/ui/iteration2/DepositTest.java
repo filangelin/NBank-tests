@@ -9,9 +9,10 @@ import ui.BaseUiTest;
 import ui.pages.BankAlert;
 import ui.pages.UserDashboard;
 
+import java.math.BigDecimal;
+
 import static api.middle.iteration1.generators.RandomData.getDepositAmount;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static ui.pages.BasePage.authAsUser;
 import static ui.pages.DepositMoneyPage.DEFAULT_BALANCE;
 import static ui.pages.DepositMoneyPage.NEGATIVE_MAXIMUM_BOUNDARY_VALUE;
 
@@ -34,7 +35,7 @@ public class DepositTest extends BaseUiTest {
                 .gotoDepositMoney()
                 .checkAccountBalance(accountId, depositAmount);
 
-        float updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
+        BigDecimal updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isEqualTo(depositAmount);
     }
 
@@ -53,7 +54,7 @@ public class DepositTest extends BaseUiTest {
                 .gotoDepositMoney()
                 .checkAccountBalance(accountId, DEFAULT_BALANCE);
 
-        float updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
+        BigDecimal updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isZero();
     }
 
@@ -71,7 +72,7 @@ public class DepositTest extends BaseUiTest {
                 .gotoDepositMoney()
                 .checkAccountBalance(accountId, DEFAULT_BALANCE);
 
-        float updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
+        BigDecimal updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isZero();
     }
 
@@ -90,7 +91,7 @@ public class DepositTest extends BaseUiTest {
                 .gotoDepositMoney()
                 .checkAccountBalance(accountId, DEFAULT_BALANCE);
 
-        float updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
+        BigDecimal updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isZero();
     }
 }

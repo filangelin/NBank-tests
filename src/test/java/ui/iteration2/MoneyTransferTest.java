@@ -9,10 +9,11 @@ import ui.BaseUiTest;
 import ui.pages.BankAlert;
 import ui.pages.UserDashboard;
 
+import java.math.BigDecimal;
+
 import static api.middle.iteration1.generators.RandomData.getNonexistingAccountId;
 import static api.middle.iteration1.generators.RandomData.getTransferAmount;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static ui.pages.BasePage.authAsUser;
 
 public class MoneyTransferTest extends BaseUiTest {
 
@@ -23,7 +24,7 @@ public class MoneyTransferTest extends BaseUiTest {
         var recipient = SessionStorage.getUser(2);
         Long accountId1 = SessionStorage.getAccount().getId();
         Long accountId2 = SessionStorage.getAccount(2).getId();
-        float amount = getTransferAmount();
+        BigDecimal amount = getTransferAmount();
         SessionStorage.getSteps().depositMoney(accountId1, amount);
 
         new UserDashboard().open()
@@ -34,13 +35,16 @@ public class MoneyTransferTest extends BaseUiTest {
                 .inputTransferAmount(amount)
                 .confirmDetailsAreCorrect()
                 .clickTransferButton()
-                .checkAlertMessageAndAccept(BankAlert.TRANSFER_SUCCESSFULLY.getMessage())
+                .checkAlertMessageAndAccept(BankAlert.TRANSFER_SUCCESSFULLY.getMessage()) //Expecting actual:
+//        "❌ Error: Invalid transfer: insufficient funds or invalid accounts"
+//        to contain:
+//        "✅ Successfully transferred"
                 .refresh()
                 .selectAccount(accountId1)
-                .checkAccountBalance(0.00f);
+                .checkAccountBalance(BigDecimal.valueOf(0.00));
 
-        float senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
-        float receiverUpdatedBalance = SessionStorage.getSteps(2).getCurrentAccountBalance(accountId2);
+        BigDecimal senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
+        BigDecimal receiverUpdatedBalance = SessionStorage.getSteps(2).getCurrentAccountBalance(accountId2);
         softly.assertThat(senderUpdatedBalance).isZero();
         softly.assertThat(receiverUpdatedBalance).isEqualTo(amount);
     }
@@ -53,14 +57,14 @@ public class MoneyTransferTest extends BaseUiTest {
         var user = SessionStorage.getUser();
         Long accountId1 = SessionStorage.getAccount().getId();
         Long accountId2 = SessionStorage.getAccount(1, 2).getId();
-        float amount = getTransferAmount();
+        BigDecimal amount = getTransferAmount();
         SessionStorage.getSteps().depositMoney(accountId1, amount);
 
-        float senderInitialBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
-        float receiverInitialBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId2);
+        BigDecimal senderInitialBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
+        BigDecimal receiverInitialBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId2);
 
-        float senderExpectedBalance = senderInitialBalance - amount;
-        float receiverExpectedBalance = receiverInitialBalance + amount;
+        BigDecimal senderExpectedBalance = senderInitialBalance.subtract(amount);
+        BigDecimal receiverExpectedBalance = receiverInitialBalance.add(amount);
 
         new UserDashboard().open()
                 .gotoTransferPage()
@@ -70,16 +74,16 @@ public class MoneyTransferTest extends BaseUiTest {
                 .inputTransferAmount(amount)
                 .confirmDetailsAreCorrect()
                 .clickTransferButton()
-                .checkAlertMessageAndAccept(BankAlert.TRANSFER_SUCCESSFULLY.getMessage())
+                .checkAlertMessageAndAccept(BankAlert.TRANSFER_SUCCESSFULLY.getMessage()) // TODO flaky
                 .refresh()
                 .selectAccount(accountId1)
                 .checkAccountBalance(senderExpectedBalance)
                 .selectAccount(accountId2)
                 .checkAccountBalance(receiverExpectedBalance);
 
-        float senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
-        float receiverUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId2);
-        softly.assertThat(senderUpdatedBalance).isEqualTo(senderExpectedBalance);
+        BigDecimal senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
+        BigDecimal receiverUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId2);
+        softly.assertThat(senderUpdatedBalance).isEqualByComparingTo(senderExpectedBalance);
         softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverExpectedBalance);
     }
 
@@ -91,15 +95,15 @@ public class MoneyTransferTest extends BaseUiTest {
         var recipient = SessionStorage.getUser(2);
         Long accountId1 = SessionStorage.getAccount().getId();
         Long accountId2 = SessionStorage.getAccount(2).getId();
-        float amount = getTransferAmount();
+        BigDecimal amount = getTransferAmount();
         SessionStorage.getSteps().depositMoney(accountId1, amount);
 
-        float senderInitialBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
-        float receiverInitialBalance = SessionStorage.getSteps(2).getCurrentAccountBalance(accountId2);
+        BigDecimal senderInitialBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
+        BigDecimal receiverInitialBalance = SessionStorage.getSteps(2).getCurrentAccountBalance(accountId2);
 
         new UserDashboard().open()
                 .gotoTransferPage()
-                .selectAccount(accountId1)
+                .selectAccount(accountId1) //не находит элемент, так как появляется небыстро
                 .inputRecipientName(recipient.getUsername())
                 .selectRecipientAccount(accountId2)
                 .confirmDetailsAreCorrect()
@@ -111,8 +115,8 @@ public class MoneyTransferTest extends BaseUiTest {
 
 
         //проверка, что балансы отправителя и получателя не изменились
-        float senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
-        float receiverUpdatedBalance = SessionStorage.getSteps(2).getCurrentAccountBalance(accountId2);
+        BigDecimal senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
+        BigDecimal receiverUpdatedBalance = SessionStorage.getSteps(2).getCurrentAccountBalance(accountId2);
         softly.assertThat(senderUpdatedBalance).isEqualTo(senderInitialBalance);
         softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverInitialBalance);
     }
@@ -123,10 +127,10 @@ public class MoneyTransferTest extends BaseUiTest {
     @Account({@AccountSpec})
     public void userCannotTransferToNonExistingAccount() {
         Long accountId1 = SessionStorage.getAccount().getId();
-        float amount = getTransferAmount();
+        BigDecimal amount = getTransferAmount();
         SessionStorage.getSteps().depositMoney(accountId1, amount);
 
-        float senderInitialBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
+        BigDecimal senderInitialBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
 
         Long nonExistingAccountId = getNonexistingAccountId();
 
@@ -144,7 +148,7 @@ public class MoneyTransferTest extends BaseUiTest {
                 .checkAccountBalance(senderInitialBalance);
 
         // проверка, что баланс не изменился
-        float senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
+        BigDecimal senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
         assertThat(senderUpdatedBalance).isEqualTo(senderInitialBalance);
     }
 }

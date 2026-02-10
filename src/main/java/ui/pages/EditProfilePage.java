@@ -2,6 +2,9 @@ package ui.pages;
 
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import common.utils.RetryUtils;
+
+import java.util.Objects;
 
 import static com.codeborne.selenide.Selenide.$;
 
@@ -16,7 +19,12 @@ public class EditProfilePage extends BasePage<EditProfilePage> {
     }
 
     public EditProfilePage changeName(String newName) {
-        nameInput.setValue(newName);
+        RetryUtils.retry(() -> nameInput.setValue(newName),
+                1000,
+                result -> Objects.equals(result.getAttribute("value"), newName),
+                3,
+                2000
+        );
         return this;
     }
 
