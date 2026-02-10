@@ -18,6 +18,7 @@ import api.senior.requests.steps.AdminSteps;
 import api.senior.requests.steps.UserSteps;
 import api.senior.specs.RequestSpecs;
 
+import java.math.BigDecimal;
 import java.util.stream.Stream;
 
 import static api.middle.iteration1.generators.RandomData.getDepositAmount;
@@ -29,22 +30,22 @@ public class DepositTest extends BaseTest {
 
     private static Stream<Arguments> validDataForDeposit() {
         return Stream.of(
-                //граничные значения
-                Arguments.of(0.01F),
-                Arguments.of(0.02F),
-                Arguments.of(4999.99F),
-                Arguments.of(5000)
+                // граничные значения
+                Arguments.of(new BigDecimal("0.01")),
+                Arguments.of(new BigDecimal("0.02")),
+                Arguments.of(new BigDecimal("4999.99")),
+                Arguments.of(new BigDecimal("5000.00"))
         );
     }
 
     @ParameterizedTest
     @MethodSource("validDataForDeposit")
-    public void userCanDepositToOwnAccount(float depositAmount) {
+    public void userCanDepositToOwnAccount(BigDecimal depositAmount) {
         CreateUserRequest userRequest = AdminSteps.createUser();
         var reqSpec = RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword());
         Long accountId = UserSteps.createAccount(reqSpec).getId();
-        float currentBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
-        float expectedBalance = currentBalance + depositAmount;
+        BigDecimal currentBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
+        BigDecimal expectedBalance = currentBalance.add(depositAmount);
 
         var request = new MakeDepositRequestModel(accountId, depositAmount);
 
@@ -58,8 +59,8 @@ public class DepositTest extends BaseTest {
         ModelAssertions.assertThatModels(request, response).match();
 
         //проверка, что баланс поменялся на ожидаемый через GET метод
-        float updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
-        softly.assertThat(updatedBalance).isEqualTo(expectedBalance);
+        BigDecimal updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
+        softly.assertThat(updatedBalance).isEqualByComparingTo(expectedBalance);
 
     }
 
@@ -67,20 +68,21 @@ public class DepositTest extends BaseTest {
     private static Stream<Arguments> invalidDataForDeposit() {
         return Stream.of(
                 //граничные значения суммы депозита
-                Arguments.of( 0, LEAST_DEPOSIT),
-                Arguments.of( 5000.01F, EXCEEDED_DEPOSIT),
-                //отрицательное значение депозита
-                Arguments.of( -100, LEAST_DEPOSIT)
-                );
+                Arguments.of(new BigDecimal("0.00"), LEAST_DEPOSIT),
+                Arguments.of(new BigDecimal("5000.01"), EXCEEDED_DEPOSIT),
+                // отрицательное значение депозита
+                Arguments.of(new BigDecimal("-100.00"), LEAST_DEPOSIT)
+        );
+
     }
 
     @ParameterizedTest
     @MethodSource("invalidDataForDeposit")
-    public void userCannotDepositWithInvalidData(float deposit, Errors message) {
+    public void userCannotDepositWithInvalidData(BigDecimal deposit, Errors message) {
         CreateUserRequest userRequest = AdminSteps.createUser();
         var reqSpec = RequestSpecs.authAsUser(userRequest.getUsername(), userRequest.getPassword());
         Long accountId = UserSteps.createAccount(reqSpec).getId();
-        float initialBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
+        BigDecimal initialBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
 
         var request = new MakeDepositRequestModel(accountId, deposit);
 
@@ -92,7 +94,7 @@ public class DepositTest extends BaseTest {
                 .post(request);
 
         //проверка, что баланс не поменялся
-        float updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
+        BigDecimal updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
         softly.assertThat(updatedBalance).isEqualTo(initialBalance);
     }
 
@@ -105,7 +107,7 @@ public class DepositTest extends BaseTest {
         var reqSpec2 = RequestSpecs.authAsUser(userRequest2.getUsername(), userRequest2.getPassword());
         Long accountId = UserSteps.createAccount(reqSpec2).getId();
         //счет другого пользователя
-        float initialBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId);
+        BigDecimal initialBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId);
 
         var request = new MakeDepositRequestModel(accountId, getDepositAmount());
 
@@ -118,7 +120,7 @@ public class DepositTest extends BaseTest {
 
 
         //проверка, что баланс другого пользователя не поменялся
-        float updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId);
+        BigDecimal updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId);
         softly.assertThat(updatedBalance).isEqualTo(initialBalance);
     }
 }
