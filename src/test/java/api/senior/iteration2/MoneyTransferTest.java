@@ -124,8 +124,8 @@ public class MoneyTransferTest extends BaseTest {
         //проверка изменения баланса
         BigDecimal senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
         BigDecimal receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId2);
-        softly.assertThat(senderUpdatedBalance).isEqualByComparingTo(senderExpectedBalance); //expected: 0.0 but was: 4.0E-4f
-        softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverExpectedBalance);
+        softly.assertThat(senderUpdatedBalance).isEqualByComparingTo(senderExpectedBalance);
+        softly.assertThat(receiverUpdatedBalance).isEqualByComparingTo(receiverExpectedBalance);
     }
 
 
