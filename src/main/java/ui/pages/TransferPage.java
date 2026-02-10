@@ -3,6 +3,9 @@ package ui.pages;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import common.utils.RetryUtils;
+
+import java.math.BigDecimal;
 
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
@@ -23,7 +26,11 @@ public class TransferPage extends BasePage<TransferPage> {
 
     public TransferPage selectAccount(Long accountNumber) {
         selectAccountField.click();
-        SelenideElement selectAccount = $(Selectors.byText("ACC" + accountNumber));
+        SelenideElement selectAccount = RetryUtils.retry(() -> $(Selectors.byText("ACC" + accountNumber)),
+                result -> result != null,
+                3,
+                2000
+        );
         selectAccount.click();
         selectAccountField.shouldHave(Condition.text(String.valueOf(accountNumber)));
         return this;
@@ -39,7 +46,7 @@ public class TransferPage extends BasePage<TransferPage> {
         return this;
     }
 
-    public TransferPage inputTransferAmount(float transferAmount) {
+    public TransferPage inputTransferAmount(BigDecimal transferAmount) {
         amountField.sendKeys(String.valueOf(transferAmount));
         return this;
     }
@@ -54,7 +61,7 @@ public class TransferPage extends BasePage<TransferPage> {
         return this;
     }
 
-    public TransferPage checkAccountBalance(float balance) {
+    public TransferPage checkAccountBalance(BigDecimal balance) {
         String expectedBalance = String.format("%.2f", balance).replace(',', '.');
         selectAccountField.shouldHave(Condition.text(expectedBalance));
         return this;
