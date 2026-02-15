@@ -19,6 +19,7 @@ import api.senior.requests.steps.AdminSteps;
 import api.senior.requests.steps.UserSteps;
 import api.senior.specs.ResponseSpecs;
 
+import java.math.BigDecimal;
 import java.util.stream.Stream;
 
 import static api.middle.iteration1.generators.RandomData.getNonexistingAccountId;
@@ -29,17 +30,17 @@ public class MoneyTransferTest extends BaseTest {
     private static Stream<Arguments> correctDataForTransfer() {
         return Stream.of(
                 //user can transfer money to another user account(maximum 10000)
-                Arguments.of(10000),
-                Arguments.of(9999.99F),
-                //min 0.01
-                Arguments.of(0.01F),
-                Arguments.of(0.02F)
+                Arguments.of(new BigDecimal("10000.00")),
+                Arguments.of(new BigDecimal("9999.99")),
+                // min 0.01
+                Arguments.of(new BigDecimal("0.01")),
+                Arguments.of(new BigDecimal("0.02"))
         );
     }
 
     @ParameterizedTest
     @MethodSource("correctDataForTransfer")
-    public void userCanTransferMoney(float amount) {
+    public void userCanTransferMoney(BigDecimal amount) {
         //cоздание пользователей и аккаунтов
         CreateUserRequest userRequest1 = AdminSteps.createUser();
         CreateUserRequest userRequest2 = AdminSteps.createUser();
@@ -50,11 +51,18 @@ public class MoneyTransferTest extends BaseTest {
         //пополнение баланса
         UserSteps.depositMoney(reqSpec1, accountId1, amount);
 
-        float senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
-        float receiverInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
+        BigDecimal senderInitialBalance =
+                UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
 
-        float senderExpectedBalance = senderInitialBalance - amount;
-        float receiverExpectedBalance = receiverInitialBalance + amount;
+        BigDecimal receiverInitialBalance =
+                UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
+
+        BigDecimal senderExpectedBalance =
+                senderInitialBalance.subtract(amount);
+
+        BigDecimal receiverExpectedBalance =
+                receiverInitialBalance.add(amount);
+
 
         TransferMoneyRequestModel request = TransferMoneyRequestModel.builder()
                 .senderAccountId(accountId1)
@@ -73,10 +81,10 @@ public class MoneyTransferTest extends BaseTest {
         ModelAssertions.assertThatModels(request, response).match();
 
         //проверка изменения баланса
-        float senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
-        float receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
-        softly.assertThat(senderUpdatedBalance).isEqualTo(senderExpectedBalance);
-        softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverExpectedBalance);
+        BigDecimal senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
+        BigDecimal receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
+        softly.assertThat(senderUpdatedBalance).isEqualByComparingTo(senderExpectedBalance);
+        softly.assertThat(receiverUpdatedBalance).isEqualByComparingTo(receiverExpectedBalance);
     }
 
 
@@ -88,14 +96,14 @@ public class MoneyTransferTest extends BaseTest {
         Long accountId1 = UserSteps.createAccount(reqSpec1).getId();
         Long accountId2 = UserSteps.createAccount(reqSpec1).getId();
         //пополнение баланса
-        float amount = getTransferAmount();
+        BigDecimal amount = getTransferAmount();
         UserSteps.depositMoney(reqSpec1, accountId1, amount);
 
-        float senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
-        float receiverInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId2);
+        BigDecimal senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
+        BigDecimal receiverInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId2);
 
-        float senderExpectedBalance = senderInitialBalance - amount;
-        float receiverExpectedBalance = receiverInitialBalance + amount;
+        BigDecimal senderExpectedBalance = senderInitialBalance.subtract(amount);
+        BigDecimal receiverExpectedBalance = receiverInitialBalance.add(amount);
 
         var request = TransferMoneyRequestModel.builder()
                 .senderAccountId(accountId1)
@@ -114,29 +122,40 @@ public class MoneyTransferTest extends BaseTest {
         ModelAssertions.assertThatModels(request, response).match();
 
         //проверка изменения баланса
-        float senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
-        float receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId2);
-        softly.assertThat(senderUpdatedBalance).isEqualTo(senderExpectedBalance);
-        softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverExpectedBalance);
+        BigDecimal senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
+        BigDecimal receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId2);
+        softly.assertThat(senderUpdatedBalance).isEqualByComparingTo(senderExpectedBalance);
+        softly.assertThat(receiverUpdatedBalance).isEqualByComparingTo(receiverExpectedBalance);
     }
 
 
     private static Stream<Arguments> invalidDataForTransfer() {
         return Stream.of(
                 //граничное значение 10000.01
-                Arguments.of(11000f, 10000.01F, EXCEEDED_TRANSFER),
-                //граничное значение 0
-                Arguments.of(getTransferAmount(), 0, LEAST_TRANSFER),
-                //user cannot transfer negative amount
-                Arguments.of(getTransferAmount(), -100, LEAST_TRANSFER),
-                //user cannot transfer more than sender balance
-                Arguments.of(100, 200, INSUFFICIENT_FUND)
+                Arguments.of(new BigDecimal("11000.00"),
+                        new BigDecimal("10000.01"),
+                        EXCEEDED_TRANSFER),
+
+                // граничное значение 0
+                Arguments.of(getTransferAmount(),
+                        BigDecimal.ZERO,
+                        LEAST_TRANSFER),
+
+                // user cannot transfer negative amount
+                Arguments.of(getTransferAmount(),
+                        new BigDecimal("-100.00"),
+                        LEAST_TRANSFER),
+
+                // user cannot transfer more than sender balance
+                Arguments.of(new BigDecimal("100.00"),
+                        new BigDecimal("200.00"),
+                        INSUFFICIENT_FUND)
                 );
     }
 
     @ParameterizedTest
     @MethodSource("invalidDataForTransfer")
-    public void userCannotTransferMoneyWithInvalidData(float depositAmount, float amount, Errors message) {
+    public void userCannotTransferMoneyWithInvalidData(BigDecimal depositAmount, BigDecimal amount, Errors message) {
         //cоздание пользователей и аккаунтов
         CreateUserRequest userRequest1 = AdminSteps.createUser();
         CreateUserRequest userRequest2 = AdminSteps.createUser();
@@ -146,8 +165,8 @@ public class MoneyTransferTest extends BaseTest {
         Long accountId2 = UserSteps.createAccount(reqSpec2).getId();
         UserSteps.depositMoney(reqSpec1, accountId1, depositAmount);
 
-        float senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
-        float receiverInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
+        BigDecimal senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
+        BigDecimal receiverInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
 
         var request = TransferMoneyRequestModel.builder()
                 .senderAccountId(accountId1)
@@ -163,8 +182,8 @@ public class MoneyTransferTest extends BaseTest {
                 .post(request);
 
         //проверка, что балансы отправителя и получителя не изменились
-        float senderUpdatedBalance =  UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
-        float receiverUpdatedBalance =  UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
+        BigDecimal senderUpdatedBalance =  UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
+        BigDecimal receiverUpdatedBalance =  UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
         softly.assertThat(senderUpdatedBalance).isEqualTo(senderInitialBalance);
         softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverInitialBalance);
     }
@@ -179,11 +198,11 @@ public class MoneyTransferTest extends BaseTest {
         var reqSpec2 = RequestSpecs.authAsUser(userRequest2.getUsername(), userRequest2.getPassword());
         Long accountId1 = UserSteps.createAccount(reqSpec1).getId();
         Long accountId2 = UserSteps.createAccount(reqSpec2).getId();
-        float amount = getTransferAmount();
+        BigDecimal amount = getTransferAmount();
         UserSteps.depositMoney(reqSpec2, accountId2, amount);
 
-        float senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
-        float receiverInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
+        BigDecimal senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
+        BigDecimal receiverInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
 
         var request = TransferMoneyRequestModel.builder()
                 .senderAccountId(accountId2)
@@ -199,8 +218,8 @@ public class MoneyTransferTest extends BaseTest {
                 .post(request);
 
         //проверка, что балансы отправителя и получателя не изменились
-        float senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
-        float receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
+        BigDecimal senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
+        BigDecimal receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
         softly.assertThat(senderUpdatedBalance).isEqualTo(senderInitialBalance);
         softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverInitialBalance);
     }
@@ -212,7 +231,7 @@ public class MoneyTransferTest extends BaseTest {
         var reqSpec1 = RequestSpecs.authAsUser(userRequest1.getUsername(), userRequest1.getPassword());
         Long accountId1 = UserSteps.createAccount(reqSpec1).getId();
 
-        float senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
+        BigDecimal senderInitialBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
 
         var request = TransferMoneyRequestModel.builder()
                 .senderAccountId(getNonexistingAccountId())
@@ -228,7 +247,7 @@ public class MoneyTransferTest extends BaseTest {
                 .post(request);
 
         //проверка, что баланс не изменилcя
-        float senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
+        BigDecimal senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
         softly.assertThat(senderUpdatedBalance).isEqualTo(senderInitialBalance);
     }
 }

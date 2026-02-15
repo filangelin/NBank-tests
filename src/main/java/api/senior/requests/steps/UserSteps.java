@@ -11,6 +11,7 @@ import api.senior.requests.skelethon.requesters.ValidatedCrudRequester;
 import api.senior.specs.RequestSpecs;
 import io.restassured.specification.RequestSpecification;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,24 +39,29 @@ public class UserSteps {
                 .post(null);
     }
 
-    public void depositMoney(Long accountId, float amount) {
-        final float MAX_DEPOSIT = 5000f;
-        float remaining = amount;
-        while (remaining > 0) {
-            float part = Math.min(remaining, MAX_DEPOSIT);
+    public void depositMoney(Long accountId, BigDecimal amount) {
+        final BigDecimal MAX_DEPOSIT = BigDecimal.valueOf(5000);
 
-            MakeDepositRequestModel request = new MakeDepositRequestModel(accountId, part);
+        BigDecimal remaining = amount;
+
+        while (remaining.compareTo(BigDecimal.ZERO) > 0) {
+
+            BigDecimal part = remaining.min(MAX_DEPOSIT);
+
+            MakeDepositRequestModel request =
+                    new MakeDepositRequestModel(accountId, part);
+
             new ValidatedCrudRequester<AccountResponseModel>(
                     RequestSpecs.authAsUser(username, password),
                     Endpoint.DEPOSIT,
                     ResponseSpecs.requestReturnsOK()
             ).post(request);
 
-            remaining -= part;
+            remaining = remaining.subtract(part);
         }
     }
 
-    public float getCurrentAccountBalance(Long accountId) {
+    public BigDecimal getCurrentAccountBalance(Long accountId) {
         List<AccountResponseModel> accounts = new CrudRequester(
                 RequestSpecs.authAsUser(username, password),
                 Endpoint.CUSTOMER_ACCOUNTS,
@@ -88,7 +94,7 @@ public class UserSteps {
                 .getName();
     }
 
-    public static float getCurrentAccountBalance(RequestSpecification requestSpecs, Long accountId) {
+    public static BigDecimal getCurrentAccountBalance(RequestSpecification requestSpecs, Long accountId) {
         List<AccountResponseModel> accounts = new CrudRequester(
                 requestSpecs,
                 Endpoint.CUSTOMER_ACCOUNTS,
@@ -113,20 +119,27 @@ public class UserSteps {
     }
 
 
-    public static void depositMoney(RequestSpecification reqSpec, Long accountId, float amount) {
-        final float MAX_DEPOSIT = 5000f;
-        float remaining = amount;
-        while (remaining > 0) {
-            float part = Math.min(remaining, MAX_DEPOSIT);
+    public static void depositMoney(RequestSpecification reqSpec,
+                                    Long accountId,
+                                    BigDecimal amount) {
 
-            MakeDepositRequestModel request = new MakeDepositRequestModel(accountId, part);
+        final BigDecimal MAX_DEPOSIT = BigDecimal.valueOf(5000);
+        BigDecimal remaining = amount;
+
+        while (remaining.compareTo(BigDecimal.ZERO) > 0) {
+
+            BigDecimal part = remaining.min(MAX_DEPOSIT);
+
+            MakeDepositRequestModel request =
+                    new MakeDepositRequestModel(accountId, part);
+
             new ValidatedCrudRequester<AccountResponseModel>(
                     reqSpec,
                     Endpoint.DEPOSIT,
                     ResponseSpecs.requestReturnsOK()
             ).post(request);
 
-            remaining -= part;
+            remaining = remaining.subtract(part);
         }
     }
 }
