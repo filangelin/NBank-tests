@@ -24,16 +24,17 @@ public class DepositTest extends BaseUiTest {
     @Account({@AccountSpec})
     public void userCanDeposit() {
         Long accountId = SessionStorage.getAccount().getId();
+        String accountNumber =  SessionStorage.getAccount().getAccountNumber();
         var depositAmount = getDepositAmount();
 
         new UserDashboard().open()
                 .gotoDepositMoney()
-                .selectDepositAccount(accountId)
+                .selectDepositAccount(accountNumber)
                 .enterDepositAmount(depositAmount)
                 .clickDepositButton()
                 .checkAlertMessageAndAccept(BankAlert.DEPOSIT_SUCCESSFULLY.getMessage())
                 .gotoDepositMoney()
-                .checkAccountBalance(accountId, depositAmount);
+                .checkAccountBalance(accountNumber, depositAmount);
 
         BigDecimal updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isEqualTo(depositAmount);
@@ -44,15 +45,16 @@ public class DepositTest extends BaseUiTest {
     @Account({@AccountSpec})
     public void userCannotDepositMoreThanMaximumDeposit() {
         Long accountId = SessionStorage.getAccount().getId();
+        String accountNumber =  SessionStorage.getAccount().getAccountNumber();
 
         new UserDashboard().open()
                 .gotoDepositMoney()
-                .selectDepositAccount(accountId)
+                .selectDepositAccount(accountNumber)
                 .enterDepositAmount(NEGATIVE_MAXIMUM_BOUNDARY_VALUE)
                 .clickDepositButton()
                 .checkAlertMessageAndAccept(BankAlert.DEPOSIT_MUST_BE_LESS_OR_EQUAL.getMessage())
                 .gotoDepositMoney()
-                .checkAccountBalance(accountId, DEFAULT_BALANCE);
+                .checkAccountBalance(accountNumber, DEFAULT_BALANCE);
 
         BigDecimal updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isZero();
@@ -63,14 +65,15 @@ public class DepositTest extends BaseUiTest {
     @Account({@AccountSpec})
     public void userCannotDepositWithInvalidDepositAmount() {
         Long accountId = SessionStorage.getAccount().getId();
+        String accountNumber =  SessionStorage.getAccount().getAccountNumber();
 
         new UserDashboard().open()
                 .gotoDepositMoney()
-                .selectDepositAccount(accountId)
+                .selectDepositAccount(accountNumber)
                 .clickDepositButton()
                 .checkAlertMessageAndAccept(BankAlert.INVALID_DEPOSIT.getMessage())
                 .gotoDepositMoney()
-                .checkAccountBalance(accountId, DEFAULT_BALANCE);
+                .checkAccountBalance(accountNumber, DEFAULT_BALANCE);
 
         BigDecimal updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isZero();
@@ -81,6 +84,7 @@ public class DepositTest extends BaseUiTest {
     @Account({@AccountSpec})
     public void userCannotDepositWithUnselectedAccount() {
         Long accountId = SessionStorage.getAccount().getId();
+        String accountNumber =  SessionStorage.getAccount().getAccountNumber();
         var depositAmount = getDepositAmount();
 
         new UserDashboard().open()
@@ -89,7 +93,7 @@ public class DepositTest extends BaseUiTest {
                 .clickDepositButton()
                 .checkAlertMessageAndAccept(BankAlert.UNSELECTED_ACCOUNT.getMessage())
                 .gotoDepositMoney()
-                .checkAccountBalance(accountId, DEFAULT_BALANCE);
+                .checkAccountBalance(accountNumber, DEFAULT_BALANCE);
 
         BigDecimal updatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId);
         assertThat(updatedBalance).isZero();

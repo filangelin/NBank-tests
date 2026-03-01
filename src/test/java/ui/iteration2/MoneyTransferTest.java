@@ -23,24 +23,23 @@ public class MoneyTransferTest extends BaseUiTest {
     public void userCanTransferMoney() {
         var recipient = SessionStorage.getUser(2);
         Long accountId1 = SessionStorage.getAccount().getId();
+        String accountNumber =  SessionStorage.getAccount().getAccountNumber();
         Long accountId2 = SessionStorage.getAccount(2).getId();
+        String accountNumber2 = SessionStorage.getAccount(2).getAccountNumber();
         BigDecimal amount = getTransferAmount();
         SessionStorage.getSteps().depositMoney(accountId1, amount);
 
         new UserDashboard().open()
                 .gotoTransferPage()
-                .selectAccount(accountId1)
+                .selectAccount(accountNumber)
                 .inputRecipientName(recipient.getUsername())
-                .selectRecipientAccount(accountId2)
+                .selectRecipientAccount(accountNumber2)
                 .inputTransferAmount(amount)
                 .confirmDetailsAreCorrect()
                 .clickTransferButton()
                 .checkAlertMessageAndAccept(BankAlert.TRANSFER_SUCCESSFULLY.getMessage()) //Expecting actual:
-//        "❌ Error: Invalid transfer: insufficient funds or invalid accounts"
-//        to contain:
-//        "✅ Successfully transferred"
                 .refresh()
-                .selectAccount(accountId1)
+                .selectAccount(accountNumber)
                 .checkAccountBalance(BigDecimal.valueOf(0.00));
 
         BigDecimal senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
@@ -56,7 +55,9 @@ public class MoneyTransferTest extends BaseUiTest {
     public void userCanTransferMoneyBetweenOwnAccounts() {
         var user = SessionStorage.getUser();
         Long accountId1 = SessionStorage.getAccount().getId();
+        String accountNumber =  SessionStorage.getAccount().getAccountNumber();
         Long accountId2 = SessionStorage.getAccount(1, 2).getId();
+        String accountNumber2 =  SessionStorage.getAccount(1, 2).getAccountNumber();
         BigDecimal amount = getTransferAmount();
         SessionStorage.getSteps().depositMoney(accountId1, amount);
 
@@ -68,17 +69,17 @@ public class MoneyTransferTest extends BaseUiTest {
 
         new UserDashboard().open()
                 .gotoTransferPage()
-                .selectAccount(accountId1)
+                .selectAccount(accountNumber)
                 .inputRecipientName(user.getUsername())
-                .selectRecipientAccount(accountId2)
+                .selectRecipientAccount(accountNumber2)
                 .inputTransferAmount(amount)
                 .confirmDetailsAreCorrect()
                 .clickTransferButton()
                 .checkAlertMessageAndAccept(BankAlert.TRANSFER_SUCCESSFULLY.getMessage()) // TODO flaky
                 .refresh()
-                .selectAccount(accountId1)
+                .selectAccount(accountNumber)
                 .checkAccountBalance(senderExpectedBalance)
-                .selectAccount(accountId2)
+                .selectAccount(accountNumber2)
                 .checkAccountBalance(receiverExpectedBalance);
 
         BigDecimal senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
@@ -94,7 +95,9 @@ public class MoneyTransferTest extends BaseUiTest {
     public void userCannotTransferWithEmptyMoneyAmount() {
         var recipient = SessionStorage.getUser(2);
         Long accountId1 = SessionStorage.getAccount().getId();
+        String accountNumber =  SessionStorage.getAccount().getAccountNumber();
         Long accountId2 = SessionStorage.getAccount(2).getId();
+        String accountNumber2 =  SessionStorage.getAccount(2).getAccountNumber();
         BigDecimal amount = getTransferAmount();
         SessionStorage.getSteps().depositMoney(accountId1, amount);
 
@@ -103,14 +106,14 @@ public class MoneyTransferTest extends BaseUiTest {
 
         new UserDashboard().open()
                 .gotoTransferPage()
-                .selectAccount(accountId1) //не находит элемент, так как появляется небыстро
+                .selectAccount(accountNumber) //не находит элемент, так как появляется небыстро
                 .inputRecipientName(recipient.getUsername())
-                .selectRecipientAccount(accountId2)
+                .selectRecipientAccount(accountNumber2)
                 .confirmDetailsAreCorrect()
                 .clickTransferButton()
                 .checkAlertMessageAndAccept(BankAlert.FILL_ALL_TRANSFER_FIELDS.getMessage())
                 .refresh()
-                .selectAccount(accountId1)
+                .selectAccount(accountNumber)
                 .checkAccountBalance(amount);
 
 
@@ -127,16 +130,17 @@ public class MoneyTransferTest extends BaseUiTest {
     @Account({@AccountSpec})
     public void userCannotTransferToNonExistingAccount() {
         Long accountId1 = SessionStorage.getAccount().getId();
+        String accountNumber =  SessionStorage.getAccount().getAccountNumber();
         BigDecimal amount = getTransferAmount();
         SessionStorage.getSteps().depositMoney(accountId1, amount);
 
         BigDecimal senderInitialBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
 
-        Long nonExistingAccountId = getNonexistingAccountId();
+        String nonExistingAccountId = getNonexistingAccountId().toString();
 
         new UserDashboard().open()
                 .gotoTransferPage()
-                .selectAccount(accountId1)
+                .selectAccount(accountNumber)
                 .inputRecipientName("non_existing_user")
                 .selectRecipientAccount(nonExistingAccountId)
                 .inputTransferAmount(amount)
@@ -144,7 +148,7 @@ public class MoneyTransferTest extends BaseUiTest {
                 .clickTransferButton()
                 .checkAlertMessageAndAccept(BankAlert.NO_USER_FOUND.getMessage())
                 .refresh()
-                .selectAccount(accountId1)
+                .selectAccount(accountNumber)
                 .checkAccountBalance(senderInitialBalance);
 
         // проверка, что баланс не изменился

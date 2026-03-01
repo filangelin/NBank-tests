@@ -1,9 +1,12 @@
 package api.senior.iteration1;
 
+import api.dao.UserDao;
+import api.dao.comparison.DaoAndModelAssertions;
 import api.senior.generators.RandomModelGenerator;
 import api.senior.models.CreateUserRequest;
 import api.senior.models.CreateUserResponse;
 import api.senior.models.comparison.ModelAssertions;
+import api.senior.requests.steps.DataBaseSteps;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -16,6 +19,8 @@ import api.senior.specs.ResponseSpecs;
 
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CreateUserTest extends BaseTest {
     @Test
@@ -30,6 +35,9 @@ public class CreateUserTest extends BaseTest {
                 .post(createUserRequest);
 
         ModelAssertions.assertThatModels(createUserRequest,createUserResponse).match();
+
+        UserDao userDao = DataBaseSteps.getUserByUsername(createUserRequest.getUsername());
+        DaoAndModelAssertions.assertThat(createUserResponse, userDao).match();
     }
 
     public static Stream<Arguments> userInvalidData() {
@@ -56,5 +64,8 @@ public class CreateUserTest extends BaseTest {
                 Endpoint.ADMIN_USER,
                 ResponseSpecs.requestReturnsBadRequest(errorKey, errorValue))
                 .post(createUserRequest);
+
+        assertNull(DataBaseSteps.getUserByUsername(createUserRequest.getUsername()));
+
     }
 }

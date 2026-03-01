@@ -1,5 +1,6 @@
 package api.senior.iteration2;
 
+import api.senior.requests.steps.DataBaseSteps;
 import api.senior.specs.RequestSpecs;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -85,6 +86,12 @@ public class MoneyTransferTest extends BaseTest {
         BigDecimal receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
         softly.assertThat(senderUpdatedBalance).isEqualByComparingTo(senderExpectedBalance);
         softly.assertThat(receiverUpdatedBalance).isEqualByComparingTo(receiverExpectedBalance);
+
+        BigDecimal balanceInDB1 = DataBaseSteps.getAccountBalanceById(accountId1);
+        softly.assertThat(balanceInDB1).isEqualByComparingTo(senderExpectedBalance);
+
+        BigDecimal balanceInDB2 = DataBaseSteps.getAccountBalanceById(accountId2);
+        softly.assertThat(balanceInDB2).isEqualByComparingTo(receiverExpectedBalance);
     }
 
 
@@ -126,6 +133,12 @@ public class MoneyTransferTest extends BaseTest {
         BigDecimal receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId2);
         softly.assertThat(senderUpdatedBalance).isEqualByComparingTo(senderExpectedBalance);
         softly.assertThat(receiverUpdatedBalance).isEqualByComparingTo(receiverExpectedBalance);
+
+        BigDecimal balanceInDB1 = DataBaseSteps.getAccountBalanceById(accountId1);
+        softly.assertThat(balanceInDB1).isEqualByComparingTo(senderExpectedBalance);
+
+        BigDecimal balanceInDB2 = DataBaseSteps.getAccountBalanceById(accountId2);
+        softly.assertThat(balanceInDB2).isEqualByComparingTo(receiverExpectedBalance);
     }
 
 
@@ -186,6 +199,12 @@ public class MoneyTransferTest extends BaseTest {
         BigDecimal receiverUpdatedBalance =  UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
         softly.assertThat(senderUpdatedBalance).isEqualTo(senderInitialBalance);
         softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverInitialBalance);
+
+        BigDecimal balanceInDB1 = DataBaseSteps.getAccountBalanceById(accountId1);
+        softly.assertThat(balanceInDB1).isEqualByComparingTo(senderInitialBalance);
+
+        BigDecimal balanceInDB2 = DataBaseSteps.getAccountBalanceById(accountId2);
+        softly.assertThat(balanceInDB2).isEqualByComparingTo(receiverInitialBalance);
     }
 
 
@@ -222,6 +241,12 @@ public class MoneyTransferTest extends BaseTest {
         BigDecimal receiverUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId2);
         softly.assertThat(senderUpdatedBalance).isEqualTo(senderInitialBalance);
         softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverInitialBalance);
+
+        BigDecimal balanceInDB1 = DataBaseSteps.getAccountBalanceById(accountId1);
+        softly.assertThat(balanceInDB1).isEqualByComparingTo(senderInitialBalance);
+
+        BigDecimal balanceInDB2 = DataBaseSteps.getAccountBalanceById(accountId2);
+        softly.assertThat(balanceInDB2).isEqualByComparingTo(receiverInitialBalance);
     }
 
 
@@ -249,5 +274,8 @@ public class MoneyTransferTest extends BaseTest {
         //проверка, что баланс не изменилcя
         BigDecimal senderUpdatedBalance = UserSteps.getCurrentAccountBalance(reqSpec1, accountId1);
         softly.assertThat(senderUpdatedBalance).isEqualTo(senderInitialBalance);
+
+        BigDecimal balanceInDB = DataBaseSteps.getAccountBalanceById(accountId1);
+        softly.assertThat(balanceInDB).isEqualByComparingTo(senderInitialBalance);
     }
 }

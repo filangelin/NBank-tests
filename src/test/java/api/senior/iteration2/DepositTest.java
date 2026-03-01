@@ -1,6 +1,9 @@
 package api.senior.iteration2;
 
+import api.dao.AccountDao;
+import api.dao.comparison.DaoAndModelAssertions;
 import api.middle.iteration1.specs.ResponseSpecs;
+import api.senior.requests.steps.DataBaseSteps;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -19,11 +22,13 @@ import api.senior.requests.steps.UserSteps;
 import api.senior.specs.RequestSpecs;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static api.middle.iteration1.generators.RandomData.getDepositAmount;
 import static api.senior.common.Errors.EXCEEDED_DEPOSIT;
 import static api.senior.common.Errors.LEAST_DEPOSIT;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 public class DepositTest extends BaseTest {
@@ -62,6 +67,8 @@ public class DepositTest extends BaseTest {
         BigDecimal updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
         softly.assertThat(updatedBalance).isEqualByComparingTo(expectedBalance);
 
+        AccountDao accountDao = DataBaseSteps.getAccountByAccountNumber(response.getAccountNumber());
+        DaoAndModelAssertions.assertThat(response, accountDao).match();
     }
 
 
@@ -96,6 +103,9 @@ public class DepositTest extends BaseTest {
         //проверка, что баланс не поменялся
         BigDecimal updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec, accountId);
         softly.assertThat(updatedBalance).isEqualTo(initialBalance);
+
+        BigDecimal balanceInDB = DataBaseSteps.getAccountBalanceById(accountId);
+        softly.assertThat(balanceInDB).isEqualByComparingTo(initialBalance);
     }
 
 
@@ -122,5 +132,8 @@ public class DepositTest extends BaseTest {
         //проверка, что баланс другого пользователя не поменялся
         BigDecimal updatedBalance = UserSteps.getCurrentAccountBalance(reqSpec2, accountId);
         softly.assertThat(updatedBalance).isEqualTo(initialBalance);
+
+        BigDecimal balanceInDB = DataBaseSteps.getAccountBalanceById(accountId);
+        softly.assertThat(balanceInDB).isEqualByComparingTo(initialBalance);
     }
 }
