@@ -7,7 +7,7 @@ import api.senior.requests.steps.UserSteps;
 import java.util.*;
 
 public class SessionStorage {
-    private static final SessionStorage INSTANCE = new SessionStorage();
+    private static final ThreadLocal<SessionStorage> INSTANCE = ThreadLocal.withInitial(SessionStorage::new);
 
     private final LinkedHashMap<CreateUserRequest, UserSteps> userStepsMap = new LinkedHashMap<>();
     private final HashMap<Integer, List<AccountResponseModel>> usersAccounts = new HashMap<>();
@@ -17,7 +17,7 @@ public class SessionStorage {
 
     public static void addUsers(List<CreateUserRequest> users) {
         for (CreateUserRequest user : users) {
-            INSTANCE.userStepsMap.put(user, new UserSteps(user.getUsername(), user.getPassword()));
+            INSTANCE.get().userStepsMap.put(user, new UserSteps(user.getUsername(), user.getPassword()));
         }
     }
 
@@ -28,7 +28,7 @@ public class SessionStorage {
      * @return Объект CreateUserRequest, соответствующий указанному порядковому номеру.
      */
     public static CreateUserRequest getUser(int number) {
-        return new ArrayList<>(INSTANCE.userStepsMap.keySet()).get(number - 1);
+        return new ArrayList<>(INSTANCE.get().userStepsMap.keySet()).get(number - 1);
     }
 
     public static CreateUserRequest getUser() {
@@ -36,7 +36,7 @@ public class SessionStorage {
     }
 
     public static UserSteps getSteps(int number) {
-        return new ArrayList<>(INSTANCE.userStepsMap.values()).get(number - 1);
+        return new ArrayList<>(INSTANCE.get().userStepsMap.values()).get(number - 1);
     }
 
     public static UserSteps getSteps() {
@@ -44,24 +44,24 @@ public class SessionStorage {
     }
 
     public static void clear() {
-        INSTANCE.userStepsMap.clear();
-        INSTANCE.usersAccounts.clear();
+        INSTANCE.get().userStepsMap.clear();
+        INSTANCE.get().usersAccounts.clear();
     }
 
     public static void addAccount(int userIndex, AccountResponseModel account) {
-        var accountsList = INSTANCE.usersAccounts.computeIfAbsent(userIndex, k -> new LinkedList<>());
+        var accountsList = INSTANCE.get().usersAccounts.computeIfAbsent(userIndex, k -> new LinkedList<>());
         accountsList.add(account);
     }
 
     public static AccountResponseModel getAccount(int userIndex) {
-        return INSTANCE.usersAccounts.get(userIndex).getFirst();
+        return INSTANCE.get().usersAccounts.get(userIndex).getFirst();
     }
 
     public static AccountResponseModel getAccount(int userIndex, int accountIndex) {
-        return INSTANCE.usersAccounts.get(userIndex).get(accountIndex - 1);
+        return INSTANCE.get().usersAccounts.get(userIndex).get(accountIndex - 1);
     }
 
     public static AccountResponseModel getAccount() {
-        return INSTANCE.usersAccounts.get(1).getFirst();
+        return INSTANCE.get().usersAccounts.get(1).getFirst();
     }
 }

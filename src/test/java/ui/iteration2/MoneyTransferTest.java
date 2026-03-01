@@ -84,7 +84,7 @@ public class MoneyTransferTest extends BaseUiTest {
         BigDecimal senderUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId1);
         BigDecimal receiverUpdatedBalance = SessionStorage.getSteps().getCurrentAccountBalance(accountId2);
         softly.assertThat(senderUpdatedBalance).isEqualByComparingTo(senderExpectedBalance);
-        softly.assertThat(receiverUpdatedBalance).isEqualTo(receiverExpectedBalance);
+        softly.assertThat(receiverUpdatedBalance).isEqualByComparingTo(receiverExpectedBalance);
     }
 
 
