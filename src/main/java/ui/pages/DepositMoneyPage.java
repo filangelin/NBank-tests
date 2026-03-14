@@ -20,11 +20,11 @@ public class DepositMoneyPage extends BasePage<DepositMoneyPage> {
         return "/deposit";
     }
 
-    public DepositMoneyPage selectDepositAccount(Long accountNumber) {
+    public DepositMoneyPage selectDepositAccount(String accountNumber) {
         selectAccountField.click();
-        SelenideElement selectedAccount = $(Selectors.byText("ACC" + accountNumber));
+        SelenideElement selectedAccount = $(Selectors.byText(accountNumber));
         selectedAccount.click();
-        selectAccountField.shouldHave(Condition.text(String.valueOf(accountNumber)));
+        selectAccountField.shouldHave(Condition.text(accountNumber));
         return this;
     }
 
@@ -38,7 +38,7 @@ public class DepositMoneyPage extends BasePage<DepositMoneyPage> {
         return new UserDashboard();
     }
 
-    public DepositMoneyPage checkAccountBalance(Long accountNumber, BigDecimal depositAmount) {
+    public DepositMoneyPage checkAccountBalance(String accountNumber, BigDecimal depositAmount) {
         selectDepositAccount(accountNumber);
         selectAccountField.shouldHave(Condition.text(String.valueOf(depositAmount)));
         return this;

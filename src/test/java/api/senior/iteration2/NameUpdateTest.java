@@ -1,5 +1,7 @@
 package api.senior.iteration2;
 
+import api.dao.UserDao;
+import api.senior.requests.steps.DataBaseSteps;
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
 import api.senior.iteration1.BaseTest;
@@ -54,6 +56,9 @@ public class NameUpdateTest extends BaseTest {
         String nameAfterUpdate = UserSteps.getProfileName(reqSpec);
         softly.assertThat(nameForUpdate).isEqualTo(nameAfterUpdate);
         softly.assertThat(nameForUpdate).isNotEqualTo(initialName);
+
+        UserDao userDao = DataBaseSteps.getUserByUsername(userRequest.getUsername());
+        softly.assertThat(nameForUpdate).isEqualTo(userDao.getName());
     }
 
 
@@ -89,5 +94,8 @@ public class NameUpdateTest extends BaseTest {
         //проверка, что имя в профиле не поменялось через GET метод
         String actualName = UserSteps.getProfileName(reqSpec);
         softly.assertThat(initialName).isEqualTo(actualName);
+
+        UserDao userDao = DataBaseSteps.getUserByUsername(userRequest.getUsername());
+        softly.assertThat(initialName).isEqualTo(userDao.getName());
     }
 }

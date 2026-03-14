@@ -24,9 +24,9 @@ public class TransferPage extends BasePage<TransferPage> {
         return "/transfer";
     }
 
-    public TransferPage selectAccount(Long accountNumber) {
+    public TransferPage selectAccount(String accountNumber) {
         selectAccountField.click();
-        SelenideElement selectAccount = RetryUtils.retry(() -> $(Selectors.byText("ACC" + accountNumber)),
+        SelenideElement selectAccount = RetryUtils.retry(() -> $(Selectors.byText(accountNumber)),
                 result -> result != null,
                 3,
                 2000
@@ -41,8 +41,8 @@ public class TransferPage extends BasePage<TransferPage> {
         return this;
     }
 
-    public TransferPage selectRecipientAccount(Long accountNumber) {
-        recipientAccountNumberField.sendKeys("ACC" + accountNumber);
+    public TransferPage selectRecipientAccount(String accountNumber) {
+        recipientAccountNumberField.sendKeys(accountNumber);
         return this;
     }
 
